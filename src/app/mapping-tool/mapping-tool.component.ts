@@ -37,6 +37,7 @@ export class MappingToolComponent implements OnInit {
      */
     private circles: Circle[] = [];
     private lines: Line[] = [];
+    private arrows = [];
     private lineCoordinates = {borderSize: 0, borderColor: 'silver'};
     lineDot = 0;
     circleX = 20;
@@ -57,10 +58,12 @@ export class MappingToolComponent implements OnInit {
     addLink = false;
     moveNode = false;
     nodeMoving = false;
+    deleteNode = false;
+    deleteLink = false;
 
     elClicked = false; // Svg Element clicked
 
-    sidebarLinks = ['addNode', 'addLink', 'moveNode'];
+    sidebarLinks = ['addNode', 'addLink', 'moveNode', 'deleteNode', 'deleteLink'];
 
 
     public rectangulars: Rectangular[] = [];
@@ -76,14 +79,24 @@ export class MappingToolComponent implements OnInit {
 
     ngOnInit(): void {
 
+
     }
 
     /**
-     * Adds new circle element.
+     * Adds a new circle element.
      */
     addNew() {
 
         this.svgEl = document.getElementsByTagName('svg')[0];
+
+        // Adding move node drag/drop functionality
+        if (this.svgEl) {
+
+            this.svgEl.addEventListener('mousedown', this.startDrag.bind(this));
+            this.svgEl.addEventListener('mousemove', this.drag.bind(this));
+            this.svgEl.addEventListener('mouseup', this.endDrag.bind(this));
+            this.svgEl.addEventListener('mouseleave', this.endDrag.bind(this));
+        }
 
         this.circleX += 20;
         this.circleY += 30;
@@ -107,7 +120,7 @@ export class MappingToolComponent implements OnInit {
 
     /**
      * Toggles sidebar links status between active/inactive
-     * @param link
+     * @param link sidebar link name
      */
     toggleSidebarLinks(link) {
         const self = this;
@@ -121,69 +134,80 @@ export class MappingToolComponent implements OnInit {
         });
     }
 
+    /**
+     * Svg element click handler
+     * @param e mouse click event
+     * @param index element index in the elements array
+     */
+    elClick(e, index) {
 
-    circleClicked(e) {
-
-        const moving = this.svgEl.getAttribute('moving')
-        this.elClicked = true;
-
-        // Adding move node drag/drop functionality
-        if (this.svgEl && this.moveNode) {
-
-
-            this.svgEl.addEventListener('mousedown', this.startDrag.bind(this));
-            this.svgEl.addEventListener('mousemove', this.drag.bind(this));
-            this.svgEl.addEventListener('mouseup', this.endDrag.bind(this));
-            this.svgEl.addEventListener('mouseleave', this.endDrag.bind(this));
+        // Marking the element click
+        if (this.moveNode) {
+            this.elClicked = true;
+            // Removing current clicked node
+        } else if (this.deleteNode) {
+            this.removeNode(index);
+            // Removing current clicked link
+        } else if (this.deleteLink) {
+            this.removeLink(index);
         }
 
+        // Adds the link
         if (this.addLink) {
-
 
             // First click for line start
             if (this.lineDot === 0) {
                 this.lineX1 = e.offsetX;
                 this.lineY1 = e.offsetY;
-                this.lineCoordinates['x' + this.lineDot] = this.lineX1;
-                this.lineCoordinates['y' + this.lineDot] = this.lineY1;
                 ++this.lineDot;
 
                 // Next click for line end
             } else {
                 this.lineX2 = e.offsetX;
                 this.lineY2 = e.offsetY;
-                this.lineCoordinates['x' + this.lineDot] = this.lineX1;
-                this.lineCoordinates['y' + this.lineDot] = this.lineY2;
-                this.lineCoordinates.borderSize = 2;
-                this.lineCoordinates.borderColor = 'silver';
                 this.lineDot = 0;
-                this.lines.push(this.lineCoordinates);
-                this.lineCoordinates = {borderSize: 0, borderColor: 'silver'};
 
-                const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path'); // Create a path in SVG's namespace
-                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker'); // Create a path in SVG's namespace
-                pathElement.setAttribute('d', 'M' + this.lineX1 + ',' + this.lineY1 + 'L' + this.lineX2 + ',' + this.lineY2); // Set path's data
-                pathElement.style.stroke = 'silver'; // Set stroke colour
-                pathElement.style.strokeWidth = '2px'; // Set stroke width
-                marker.setAttribute('id', 'arrow');
-                marker.setAttribute('refX', '4');
-                marker.setAttribute('refY', '6.5');
-                // marker.setAttribute('markerUnits', 'strokeWidth');
-                marker.setAttribute('markerWidth', '10');
-                marker.setAttribute('markerHeight', '12');
-                marker.setAttribute('orient', 'auto');
-                // svg.appendChild(marker);
+
+                // Create a marker in SVG's namespace
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                const markerOptions = {
+                    id: 'arrow',
+                    refX: 4,
+                    refY: 6.5,
+                    markerWidth: 10,
+                    markerHeight: 12,
+                    orient: 'auto'
+                };
+                Object.keys(markerOptions).forEach((key) => {
+                    marker.setAttribute(key, markerOptions[key].toString());
+                });
+
+                // Creates a triangle of the arrow
                 const trianglePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                trianglePath.setAttribute('d', 'M2,4 L2,4 L6,6 L2,9'); // Set path's data
-                // trianglePath.style.stroke = 'silver'; // Set stroke colour
-                trianglePath.style.strokeWidth = '0.25px'; // Set stroke width
-                trianglePath.style.fill = 'silver';
-                pathElement.style.markerEnd = 'url(#arrow)';
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                // trianglePath.setAttribute('d', 'M2,4 L2,4 L6,6 L2,9'); // Set path's data
+                trianglePath.setAttribute('d', 'M2,4 L2,2 L6,6 L2,11'); // Set path's data
+                Object.assign(trianglePath.style, {fill: 'silver', strokeWidth: '0.25px'});
+
+                // Creating a path in SVG's namespace, setting its data, stroke colour & width
+                const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pathElement.setAttribute('d', `M ${this.lineX1},${this.lineY1},L${this.lineX2},${this.lineY2}`);
+                Object.assign(pathElement.style, {
+                    stroke: 'silver',
+                    strokeWidth: '2px',
+                    markerEnd: 'url(#arrow)'
+                });
+                pathElement.setAttribute('id', 'arrow' + index)
+                pathElement.addEventListener('click', this.removeLink.bind(this, index));
+                this.arrows.push(index)
+
+                // Creating svg xml
                 this.svgEl.appendChild(defs);
                 defs.appendChild(marker);
                 marker.appendChild(trianglePath);
                 this.svgEl.appendChild(pathElement);
+
+                // Resetting line/path coordinates
                 this.lineX1 = null;
                 this.lineY1 = null;
                 this.lineX2 = null;
@@ -194,19 +218,20 @@ export class MappingToolComponent implements OnInit {
 
 
     /**
-     * Retrieves the maximum height of all elements.
-     * @returns Height of the container.
-     */
-    getHeight(): number {
-        return Math.max.apply(Math, this.circles.map(el => el.radius * 2 + el.y)) + 20;
-    }
-
-    /**
      * Removes specific circle element.
      * @param index - Index of circle, which needs to be removed.
      */
-    removeRow(index: number) {
+    removeNode(index: number): void {
         this.circles.splice(index, 1);
+    }
+
+    /**
+     * Removes the selected link
+     * @param index link index
+     */
+    removeLink(index: number): void {
+        const link = document.getElementById('arrow' + index);
+        link.remove();
     }
 
 

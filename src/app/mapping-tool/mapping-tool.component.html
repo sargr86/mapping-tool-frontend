@@ -50,13 +50,13 @@
                         </div>
                         <p>Transfer</p>
                     </div>
-                    <div class="left_item">
+                    <div class="left_item" (click)="toggleSidebarLinks('deleteNode')" [class.active]="deleteNode">
                         <div class="icon">
                             <img src="../../assets/images/map_img/delete_node_icon.png">
                         </div>
                         <p>Delete node</p>
                     </div>
-                    <div class="left_item">
+                    <div class="left_item" (click)="toggleSidebarLinks('deleteLink')" [class.active]="deleteLink">
                         <div class="icon">
                             <img src="../../assets/images/map_img/delete_link_icon.png">
                         </div>
@@ -77,8 +77,8 @@
                     <div class="content_maps" [class.moveCursor]="elClicked">
                         <svg-container containerId="svg-element" #svgContainer id="content_map" style="height:100%">
                             <svg-circle [radius]="circle.radius" [color]="circle.color"
-                                        (clickEvent)="circleClicked($event)"
-                                        [x]="circle.x" [y]="circle.y" *ngFor="let circle of circles"
+                                        (clickEvent)="elClick($event,ind)"
+                                        [x]="circle.x" [y]="circle.y" *ngFor="let circle of circles;let ind = index"
                             ></svg-circle>
                             <!--                            <svg-line [borderSize]="line.borderSize" [borderColor]="line.borderColor"-->
                             <!--                                      [x0]="line.x0" [y0]="line.y0" [x1]="line.x1" [y1]="line.y1" *ngFor="let line of lines"></svg-line>-->
