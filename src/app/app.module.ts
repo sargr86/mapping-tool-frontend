@@ -7,13 +7,15 @@ import {AppComponent} from './app.component';
 import {NgxSvgModule} from 'ngx-svg';
 import {NgxGraphModule } from '@swimlane/ngx-graph';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { MappingToolComponent } from './mapping-tool/mapping-tool.component';
+import { MappingToolComponent } from './mapping_tool/mapping-tool/mapping-tool.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { AddNodesFormComponent } from './mapping_tool/add-nodes-form/add-nodes-form.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         MappingToolComponent,
+        AddNodesFormComponent,
     ],
     imports: [
         BrowserModule,

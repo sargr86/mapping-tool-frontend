@@ -1,0 +1,12 @@
+<h3>Node information</h3>
+<form action="" class="mapBottomForm" [formGroup]="nodesForm">
+    <select formControlName="type">
+        <option value="task">Task</option>
+        <option value="document">Document</option>
+        <option value="observation">Observation</option>
+    </select>
+    <input type="text" name="node_name" placeholder="Name" formControlName="name">
+    <input type="text" name="file_path" placeholder="File path" formControlName="file_path">
+    <input type="text" class="desc_text" name="desc" placeholder="Description" formControlName="description">
+    <button type="button" class="btn" name="submit_save" (click)="addNewNode()">Save</button>
+</form>

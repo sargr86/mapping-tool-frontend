@@ -25,6 +25,14 @@ interface Line {
     y1?: number;
 }
 
+interface Text {
+    text: string;
+    size?: number;
+    color?: string;
+    x?: number;
+    y?: number;
+}
+
 @Component({
     selector: 'app-mapping-tool',
     templateUrl: './mapping-tool.component.html',
@@ -39,6 +47,7 @@ export class MappingToolComponent implements OnInit {
     private lines: Line[] = [];
     private arrows = [];
     private lineCoordinates = {borderSize: 0, borderColor: 'silver'};
+    private texts: Text[] = [];
     lineDot = 0;
     circleX = 20;
     circleY = 20;
@@ -85,7 +94,7 @@ export class MappingToolComponent implements OnInit {
     /**
      * Adds a new circle element.
      */
-    addNew() {
+    addNewNode() {
 
         this.svgEl = document.getElementsByTagName('svg')[0];
 
@@ -108,13 +117,29 @@ export class MappingToolComponent implements OnInit {
             y: this.circleY
         });
 
-        this.rectangulars.push({
-            height: 398,
-            width: 398,
-            color: 'rgba(125, 125, 32, 0.5)',
-            x: 50,
-            y: 50
-        });
+        // this.rectangulars.push({
+        //     height: 398,
+        //     width: 398,
+        //     color: 'rgba(125, 125, 32, 0.5)',
+        //     x: 50,
+        //     y: 50
+        // });
+
+        this.texts.push(
+            //     {
+            //     text: 'Wow! This is awesome text with an opacity!',
+            //     size: 30,
+            //     color: 'rgba(125, 125, 32, 0.5)',
+            //     x: 20,
+            //     y: 30
+            // },
+            {
+                text: 'Texts can have different sizes, positions and colors!',
+                size: 10,
+                color: 'rgba(12, 32, 222, 0.7)',
+                x: this.circleX + 40,
+                y: this.circleY + 12
+            });
     }
 
 

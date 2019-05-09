@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {MappingToolComponent} from './mapping-tool/mapping-tool.component';
+import {MappingToolComponent} from './mapping_tool/mapping-tool/mapping-tool.component';
 
 const routes: Routes = [
   {
